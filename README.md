@@ -65,12 +65,3 @@ To tweak difficulty, edit the `difficultySettings` object near the top of `scrip
 ## Contribution
 - Small changes are welcome: open a PR and test on desktop and mobile.
 - Keep assets (images/audio) under permissive licenses.
-
----
-
-If you'd like, I can:
-- Add a small live server `npm` script and a `package.json` with http-server.
-- Convert the camel sound to an `mp3` fallback and include a brief visual pop animation synchronized to sound.
-- Add tests for key game functions (collision math) as unit tests.
-
-Which would you like next?

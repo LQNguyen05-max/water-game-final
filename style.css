@@ -1,0 +1,441 @@
+
+.bad-drop img {
+  filter: brightness(0.5) sepia(1) hue-rotate(10deg) saturate(3);
+}
+
+#score-modal {
+  z-index: 2000 !important;
+}
+
+html {
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #e0f7fa; 
+}
+
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0,0,0,0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+.modal-content {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 32px rgba(0,0,0,0.18);
+  padding: 2.5rem 2.5rem 2rem 2.5rem;
+  text-align: center;
+  min-width: 320px;
+  max-width: 90vw;
+}
+.modal-content h2 {
+  margin-top: 0;
+  font-size: 2.2rem;
+  color: #b1a607;
+}
+.modal-content p {
+  font-size: 1.1rem;
+  color: #333;
+  margin-bottom: 2rem;
+}
+
+#instruction-overlay ol {
+  text-align: left;
+  margin: 1rem 0;
+  padding-left: 1.2rem;
+  font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif
+}
+
+.modal-btn {
+  background: #43a047;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 0.8rem 2.2rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin-top: 1rem;
+}
+.modal-btn:hover {
+  background: #388e3c;
+}
+/* Charity: water Brand Colors & Fonts */
+body {
+  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg, #f9d423 0%, #ff4e50 100%);
+  background-image: url('https://images.unsplash.com/photo-1526749837599-b4eba9fd855e?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'); /* South Africa landscape */
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  width: 190vw;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+  #game-container {
+    width: 90vw;
+    height: 90vh;
+    min-height: 700px;
+    margin: 40px auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: rgba(224,224,224,0.85); 
+    position: relative;
+    box-sizing: border-box;
+    overflow: hidden;
+    border-radius: 24px;
+    box-shadow: 0 4px 32px rgba(0,0,0,0.10);
+  }
+
+#game-ui {
+  width: 100%;
+  flex: 1 1 auto;
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  /* border: 2px solid red; */
+}
+
+@media (max-width: 600px) {
+  #game-container {
+    width: 90vw;
+    height: 90vh;
+  }
+  .top-bar > .timer-label {
+    font-size: 20px;
+    font-weight: bold;
+  }
+
+  .top-bar > .score-label {
+    font-size: 20px;
+    font-weight: bold;
+  }
+
+  .water-bar-container {
+    font-size: 14px;
+  }
+
+  #drops-area {
+    height: 50vh;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .water-bar-container > .water-bar-label {
+    font-size: 14px;
+  }
+
+  #drops-area > .water-drop {
+    width: 40px;
+    height: 60px;
+  }
+}
+
+.top-bar {
+  width: 100%;
+  margin: 0; 
+  padding: 0 3vw;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  background: none;
+  border-radius: 0;
+  box-shadow: none;
+  position: relative;
+  left: 0;
+  right: 0;
+}
+
+.timer-label, .score-label {
+  font-size: 2.5rem;
+  font-weight: 500;
+  color: #222;
+  text-shadow: 1px 1px 4px #fff;
+}
+
+.timer-label {
+  flex: 1 1 0;
+  text-align: left;
+  margin-left: 0;
+  padding-left: 0;
+}
+
+.score-label {
+  flex: 1 1 0;
+  text-align: right;
+  margin-right: 0;
+  padding-right: 0;
+}
+
+.water-bar-container {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+  margin-left: 0;
+  margin-right: 0;
+  justify-content: flex-start;
+  box-sizing: border-box;
+  padding-left: 3vw;
+}
+.water-bar-bg {
+  width: 300px;
+  height: 30px;
+  background: #b3e5fc;
+  border-radius: 20px;
+  overflow: hidden;
+  margin-right: 15px;
+  border: 2px solid #0288d1;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+.water-bar-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #4fc3f7 0%, #0288d1 100%);
+  border-radius: 20px 0 0 20px;
+  transition: width 0.4s cubic-bezier(.4,2,.6,1);
+}
+.water-bar-label {
+  font-size: 1.2rem;
+  color: #0288d1;
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
+#drops-area {
+  flex: 1 1 auto;
+  width: 100%;
+  min-height: 300px; 
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-start;
+  overflow: hidden;
+}
+
+
+.water-drop {
+  width: 60px;
+  height: 80px;
+  background: none;
+  position: absolute;
+  user-select: none;
+  pointer-events: auto;
+  transition: top 0.5s, left 0.5s;
+  z-index: 2;
+}
+.water-drop img {
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+
+#bucket {
+  width: 110px;
+  height: 110px;
+  position: absolute;
+  left: 50%;
+  bottom: 10px;
+  z-index: 10;
+  margin-bottom: 0;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.container {
+  max-width: 750px;
+  margin: 50px auto;
+  background-color: #fff;
+  padding: 40px;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+  text-align: center;
+  font-size: 30px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+h1 img {
+  height: 50px;
+  margin-right: 15px;
+  display: block;
+}
+
+.game-instructions {
+  font-size: 18px;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.stats {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 30px;
+  background-color: #f5f5f5;
+  padding: 15px 0;
+  border-radius: 8px;
+}
+
+.stats p {
+  margin: 0;
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+}
+
+.game-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+  margin: 0 auto;
+  max-width: 500px;
+}
+
+.grid-cell {
+  background-color: #e8e8e8;
+  border-radius: 8px;
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+
+.water-can-wrapper {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 70px;
+  height: 70px;
+}
+
+.water-can {
+  width: 100%;
+  height: 100%;
+  background-image: url('img/water-can.png');
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  cursor: pointer;
+  border-radius: 50%;
+  animation: popUp 0.5s cubic-bezier(0.17, 0.67, 0.34, 2);
+  transform-origin: center;
+}
+
+@keyframes popUp {
+  0% {
+    transform: scale(0.5);
+  }
+  100% {
+    transform: scale(1); 
+  }
+}
+
+
+button {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  font-size: 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: block;
+  margin: 30px auto 0;
+  transition: background-color 0.2s;
+}
+
+/* Camel End Screen */
+.camel-scene {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  background: url('img/village.png') center center no-repeat;
+  background-size: cover;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 9999;
+  flex-direction: column;
+  animation: fadeIn 1s ease forwards;
+}
+.camel-scene img {
+  user-select: none;
+}
+.camel {
+  position: absolute;
+  bottom: 8vh;
+  left: -200px;
+  width: 220px;
+  animation: camelWalk 6s linear forwards;
+}
+
+.scene-text {
+  position: absolute;
+  bottom: 15vh;
+  width: 100%;
+  text-align: center;
+  font-size: 1.8rem;
+  color: #2b2b2b;
+  text-shadow: 1px 1px 6px #fff;
+  opacity: 0;
+  animation: textFade 2s ease forwards 5s;
+}
+@keyframes camelWalk {
+  0% { left: -200px; }
+  80% { left: 65%; }
+  100% { left: 65%; }
+}
+@keyframes textFade {
+  to { opacity: 1; }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Water droplets animation */
+#waterCanvas {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  top: 0;
+  left: 0;
+}

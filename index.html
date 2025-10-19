@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>Drip to the Dunes</title>
+  <link href="style.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+  <div id="game-container">
+    <!-- Modal for Game Start -->
+    <div id="modal-overlay" class="modal-overlay" style="display: flex;">
+      <div class="modal-content">
+        <img src="img/charity-logo.jpg" alt="Water-Charity Logo" style="width:120px; margin-bottom: 16px;">
+        <h2>Drip to the Dunes</h2>
+        <p>Collect as much water as you can by catching the drops in your bucket before the timer runs out!</p>
+        <button id="modal-start-btn" class="modal-btn">Start Game</button>
+        <button id="modal-instructions-btn" class="modal-btn">Instructions</button>
+      </div>
+    </div>
+
+    <!-- Instructions Modal (separate, hidden by default) -->
+    <div class="modal-overlay" id="instruction-overlay" style="display: none;">
+      <div class="modal-content">
+        <h3>Instructions</h3>
+        <ol>
+          <li>
+            Move the bucket:
+            <ul>
+              <li>For Desktop: use the left and right arrow keys</li>
+              <li>For Mobile: swipe left and right</li>
+            </ul>
+          </li>
+          <li>Catch the falling water drops with your bucket to fill the water bar.</li>
+          <li>You have 60 seconds to fill the water bar as much as possible.</li>
+          <li>If you fill the water bar before time runs out, you win!</li>
+          <li>If time runs out and you haven't filled the bar, you lose.</li>
+        </ol>
+        <button id="close-instructions-btn" class="modal-btn">Close Instructions</button>
+      </div>
+    </div>
+
+    <!-- Main Game UI -->
+    <div id="game-ui" style="display:none;">
+      <div class="top-bar">
+        <div class="timer-label">Timer: <span id="timer">0</span></div>
+        <div class="score-label">Score: <span id="score">0</span></div>
+      </div>
+      <div class="water-bar-container">
+        <div class="water-bar-bg">
+          <div class="water-bar-fill" id="water-bar-fill"></div>
+        </div>
+        <span class="water-bar-label">Water Collected</span>
+      </div>
+      <div id="drops-area">
+        <img src="img/water-can.png" alt="Bucket" id="bucket">
+      </div>
+    </div>
+
+    <!-- Fail Screen Modal -->
+    <div id="fail-screen" class="modal-overlay" style="display:none;">
+      <div class="modal-content">
+        <h2>Game Over</h2>
+        <p>You have failed to deliver the required water. </p>
+        <p>Your Score: <span id="final-score-fail"></span></p>
+        <div class="final-score"></div>
+        <button class="modal-btn" id="fail-restart-btn">Try Again</button>
+      </div>
+    </div>
+
+    <!-- Camel Finale Scene -->
+    <div id="camel-scene" class="camel-scene" style="display:none;">
+      <div class="camel">
+        <img src="img/camel.png" alt="Camel">
+      </div>
+      <canvas id="waterCanvas"></canvas>
+      <div class="scene-text">The camel has successfully delivered water to the village! WOOP!</div>
+    </div>
+
+    <!-- End Score Modal -->
+    <div id="score-modal" class="modal-overlay" style="display:none;">
+      <div class="modal-content">
+        <h2>Congratulations!</h2>
+        <p>You have successfully delivered water to the village!</p>
+        <p>Your Score: <span id="final-score-success"></span></p>
+        <button id="return-btn" class="modal-btn">Return to Menu</button>
+      </div>
+    </div>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>

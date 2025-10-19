@@ -7,6 +7,152 @@
   z-index: 2000 !important;
 }
 
+:root{
+  --footer-height: 92px; /* default height to fit tank + donate + text */
+}
+
+/* Font contract: Inter for body, Poppins for UI/headings */
+:root{
+  --font-ui: 'Poppins', 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+  --font-body: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+}
+
+#water-footer{
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: var(--footer-height);
+  min-height: 64px;
+  background: linear-gradient(180deg, rgba(252, 235, 4, 0.06), rgba(226, 230, 14, 0.295));
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  box-shadow: 0 -2px 6px rgba(0,0,0,0.15);
+  padding: 8px 16px;
+  box-sizing: border-box;
+  /* allow for safe area inset on mobile */
+  padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+}
+.footer-inner{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  flex-wrap: wrap; /* allow items to wrap on narrow screens */
+  justify-content: center;
+  width: 100%;
+  max-width: 1100px;
+  box-sizing: border-box;
+  padding: 8px;
+}
+
+/* Water tank (visual footer) */
+.water-tank{
+  position: relative;
+  width: 140px;
+  height: 52px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: rgba(255,255,255,0.06);
+  border: 2px solid rgba(255,255,255,0.10);
+  display:inline-block;
+  margin-right: 10px;
+  flex: 0 0 auto;
+}
+.water-fill{
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(180deg,#2FA9FF,#006EC8);
+  height: 0%;
+  transition: height 400ms ease;
+  z-index: 1;
+}
+.wave{
+  position:absolute;
+  left:-20%;
+  right:-20%;
+  bottom: 0;
+  height: 40%;
+  background: rgba(255,255,255,0.12);
+  opacity: 0.5;
+  z-index: 2;
+  border-radius: 100% 100% 0 0 / 60% 60% 0 0;
+  transform: translateX(0);
+}
+.wave1{ animation: waveMove 3s linear infinite; opacity:0.25; }
+.wave2{ animation: waveMove 5s linear infinite reverse; opacity:0.18; bottom:4px; height:36%; }
+
+.charity-link-text{
+  display: inline-block;
+  margin-left: 10px;
+  color: #0b3d91;
+  font-weight: 700;
+  text-decoration: none;
+  /* font-size: 1rem; */
+  vertical-align: middle;
+}
+.charity-link{
+  display: inline-block;
+  padding: 10px 18px;
+  background: linear-gradient(180deg,#7d85156c,#7f8611bd);
+  color: #fff;
+  border-radius: 10px;
+  text-decoration: none;
+  font-weight: 800;
+  font-size: 1rem;
+  box-shadow: 0 6px 18px rgba(5,74,154,0.22);
+  border: 1px solid rgba(255,255,255,0.06);
+  transition: transform 120ms ease, box-shadow 120ms ease, background 120ms ease;
+  flex: 0 0 auto;
+}
+.charity-link:hover,
+.charity-link:focus{
+  transform: translateY(-3px);
+  box-shadow: 0 10px 26px rgba(5,74,154,0.32);
+  background: linear-gradient(180deg,#7d85156c,#7f8611bd);
+  outline: none;
+}
+.donate-btn{
+  display:inline-block;
+  padding: 8px 12px;
+  background: #ff6b6b;
+  color: #fff;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 700;
+  margin-left: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+  flex: 0 0 auto;
+}
+.donate-btn:hover{ filter: brightness(0.95); }
+
+@keyframes waveMove {
+  0% { transform: translateX(-10%); }
+  50% { transform: translateX(10%); }
+  100% { transform: translateX(-10%); }
+}
+
+/* make footer responsive on small screens */
+@media (max-width: 520px) {
+  :root { --footer-height: 120px; }
+  .water-tank { width: 120px; height: 48px; }
+  .charity-link-text { font-size: 0.95rem; margin-left: 8px; }
+  .donate-btn { margin-left: 0; margin-top: 8px; }
+  #water-footer-text { width: 100%; text-align: center; margin-top: 6px; }
+}
+
+/* ensure body bottom padding matches footer so content isn't hidden */
+body {
+  padding-bottom: calc(var(--footer-height) + env(safe-area-inset-bottom, 0px));
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+
 html {
   width: 100vw;
   height: 100vh;
@@ -41,6 +187,7 @@ html {
   min-width: 320px;
   max-width: 90vw;
 }
+.modal-content h2 { font-family: var(--font-ui); }
 .modal-content h2 {
   margin-top: 0;
   font-size: 2.2rem;
@@ -56,7 +203,6 @@ html {
   text-align: left;
   margin: 1rem 0;
   padding-left: 1.2rem;
-  font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif
 }
 
 .modal-btn {
@@ -71,12 +217,12 @@ html {
   transition: background 0.2s;
   margin-top: 1rem;
 }
+.modal-btn, .donate-btn, .charity-link { font-family: var(--font-ui); }
 .modal-btn:hover {
   background: #388e3c;
 }
 /* Charity: water Brand Colors & Fonts */
 body {
-  font-family: Arial, sans-serif;
   background: linear-gradient(135deg, #f9d423 0%, #ff4e50 100%);
   background-image: url('https://images.unsplash.com/photo-1526749837599-b4eba9fd855e?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'); /* South Africa landscape */
   background-size: cover;
@@ -85,7 +231,7 @@ body {
   width: 190vw;
   height: 100vh;
   margin: 0;
-  padding: 0;
+  padding-bottom: 110px;
   overflow: hidden;
 }
 

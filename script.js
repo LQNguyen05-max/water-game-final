@@ -1,8 +1,9 @@
-// Game settings
-const dropInterval = 1200; // ms between drops
-const dropSpeed = 2; // px per frame
-const bucketSpeed = 40; // px per key press
-const maxWater = 20; // how many drops to fill the bar
+// Game settings (mutable so difficulty can change them)
+let dropInterval = 1200; // ms between drops
+let dropSpeed = 2; // px per frame
+let bucketSpeed = 40; // px per key press
+let maxWater = 20; // how many drops to fill the bar
+let gameDuration = 60; // seconds per game (depends on difficulty)
 
 // DOM elements
 const dropsArea = document.getElementById("drops-area");
@@ -12,6 +13,19 @@ const waterBarFill = document.getElementById("water-bar-fill");
 const modalOverlay = document.getElementById("modal-overlay");
 const modalStartBtn = document.getElementById("modal-start-btn");
 const gameUI = document.getElementById("game-ui");
+
+// Camel explode SFX element (optional) - loaded from index.html
+const camelExplodeSfxEl = document.getElementById("camel-explode-sfx");
+
+function playCamelExplosionSfx() {
+  const s = camelExplodeSfxEl || (typeof Audio !== 'undefined' && new Audio('sounds/camel-explode.mp4'));
+  if (!s) return;
+  try {
+    s.currentTime = 0;
+    const p = s.play();
+    if (p && p.catch) p.catch(() => {});
+  } catch (e) {}
+}
 
 let drops = [];
 let score = 0;
@@ -24,6 +38,14 @@ let timeInterval = null;
 function updateScoreAndBar() {
   scoreSpan.textContent = score;
   waterBarFill.style.width = (waterCollected / maxWater) * 100 + "%";
+  const footerFill = document.getElementById("water-footer-fill");
+  const footerText = document.getElementById("water-footer-text");
+  if (footerFill) {
+    footerFill.style.height = (waterCollected / maxWater) * 100 + "%";
+  }
+  if (footerText) {
+    footerText.textContent = `${waterCollected} / ${maxWater}`;
+  }
 }
 
 // Update timer display
@@ -76,7 +98,9 @@ bucket.addEventListener("touchmove", (e) => {
 function createDrop() {
   const drop = document.createElement("div");
   drop.style.position = "absolute";
-  drop.style.left = Math.random() * (window.innerWidth - 65) + "px";
+  // Spawn drops inside the drops area (not the full window)
+  const areaWidth = dropsArea.offsetWidth || window.innerWidth;
+  drop.style.left = Math.random() * Math.max(0, areaWidth - 65) + "px";
   drop.style.top = "0px";
   // 25% chance to spawn a bad (brown) drop
   const isBad = Math.random() < 0.25;
@@ -102,21 +126,32 @@ function animateDrops() {
   const bucketRect = bucketEl.getBoundingClientRect();
   for (let i = drops.length - 1; i >= 0; i--) {
     const drop = drops[i];
-    let top = parseFloat(drop.style.top);
-    top += dropSpeed;
-    drop.style.top = top + "px";
-    const dropRect = drop.getBoundingClientRect();
-    // Check collision with bucket
-    if (
-      dropRect.bottom > bucketRect.top &&
-      dropRect.left < bucketRect.right &&
-      dropRect.right > bucketRect.left &&
-      dropRect.bottom < bucketRect.bottom + 40
-    ) {
-      dropsArea.removeChild(drop);
+    // Swept collision detection to avoid tunneling at high speeds
+    const beforeRect = drop.getBoundingClientRect();
+    const prevTop = parseFloat(drop.style.top) || 0;
+    const newTop = prevTop + dropSpeed;
+    drop.style.top = newTop + "px";
+    const afterRect = drop.getBoundingClientRect();
+
+    // Build a sweep rectangle that covers the drop's movement this frame
+    const sweepRect = {
+      left: Math.min(beforeRect.left, afterRect.left),
+      right: Math.max(beforeRect.right, afterRect.right),
+      top: Math.min(beforeRect.top, afterRect.top),
+      bottom: Math.max(beforeRect.bottom, afterRect.bottom),
+    };
+
+    // Check overlap between sweep rect and bucket rect
+    const overlap =
+      sweepRect.right > bucketRect.left &&
+      sweepRect.left < bucketRect.right &&
+      sweepRect.bottom > bucketRect.top &&
+      sweepRect.top < bucketRect.bottom;
+
+    if (overlap) {
+      if (drop.parentElement === dropsArea) dropsArea.removeChild(drop);
       drops.splice(i, 1);
       if (drop.dataset.bad === "1") {
-        // Bad drop: lose points and water
         score = Math.max(0, score - 1);
         waterCollected = Math.max(0, waterCollected - 1);
       } else {
@@ -126,8 +161,11 @@ function animateDrops() {
       updateScoreAndBar();
       continue;
     }
-    if (top > window.innerHeight) {
-      dropsArea.removeChild(drop);
+
+    // Remove drops that fall past the visible dropsArea (use viewport coords)
+    const areaRect = dropsArea.getBoundingClientRect();
+    if (afterRect.top > areaRect.bottom + 50) {
+      if (drop.parentElement === dropsArea) dropsArea.removeChild(drop);
       drops.splice(i, 1);
     }
   }
@@ -141,8 +179,49 @@ function dropSpawner() {
   setTimeout(dropSpawner, dropInterval);
 }
 
+// Difficulty presets (tweak numbers to tune gameplay)
+const difficultySettings = {
+  easy: {
+    dropInterval: 1500,
+    dropSpeed: 1.5,
+    bucketSpeed: 48,
+    maxWater: 15,
+    gameDuration: 70,
+  },
+  medium: {
+    dropInterval: 1200,
+    dropSpeed: 2.0,
+    bucketSpeed: 40,
+    maxWater: 20,
+    gameDuration: 60,
+  },
+  hard: {
+    dropInterval: 800,
+    dropSpeed: 3.0,
+    bucketSpeed: 32,
+    maxWater: 25,
+    gameDuration: 50,
+  },
+};
+
+let currentDifficulty = "medium";
+
+function applyDifficulty(level) {
+  const s = difficultySettings[level] || difficultySettings.medium;
+  dropInterval = s.dropInterval;
+  dropSpeed = s.dropSpeed;
+  bucketSpeed = s.bucketSpeed;
+  maxWater = s.maxWater;
+  gameDuration = s.gameDuration;
+  currentDifficulty = level;
+}
+
 // Start game
 function startGame() {
+  // Read difficulty from UI (if present) and apply
+  const sel = document.getElementById("difficulty-select");
+  if (sel) applyDifficulty(sel.value);
+
   // Hide modal, show game UI
   modalOverlay.style.display = "none";
   gameUI.style.display = "";
@@ -161,7 +240,8 @@ function startGame() {
   score = 0;
   waterCollected = 0;
   updateScoreAndBar();
-  timer = 60;
+  // Initialize timer from difficulty
+  timer = gameDuration;
   updateTimer();
 
   if (timeInterval) {
@@ -212,28 +292,24 @@ function failedGame() {
 function goodGame() {
   gameActive = false;
   gameUI.style.display = "none";
-  // Hide modal overlay if shown
+
   modalOverlay.style.display = "none";
 
-  // Hide the game container's background (remove semi-transparent overlay)
   const gameContainer = document.getElementById("game-container");
   gameContainer.style.background = "transparent";
 
   // Show camel end scene
   const scene = document.getElementById("camel-scene");
   scene.style.display = "flex";
-  // Set the background to the village image
   scene.style.background =
     "url('img/village.jpg') center center / cover no-repeat";
 
-  // Optionally remove the .village image if present
   const villageImg = scene.querySelector(".village");
   if (villageImg) villageImg.style.display = "none";
 
   const canvas = document.getElementById("waterCanvas");
   const ctx = canvas.getContext("2d");
 
-  // Fit canvas to screen
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
 
@@ -242,9 +318,12 @@ function goodGame() {
 
   // After camel walks to the village (5s), hide camel and start water burst
   setTimeout(() => {
-    // Hide the camel image (simulate popping)
     const camelImg = scene.querySelector(".camel img");
-    if (camelImg) camelImg.style.display = "none";
+    if (camelImg) {
+      camelImg.style.display = "none";
+      // play explosion SFX when camel pops
+      playCamelExplosionSfx();
+    }
     for (let i = 0; i < 500; i++) {
       particles.push({
         x: canvas.width * 0.65,
@@ -256,13 +335,11 @@ function goodGame() {
       });
     }
     animateWater();
-    // After water burst (5s), show score modal
     setTimeout(() => {
       animationActive = false;
       scene.style.display = "none";
       scene.style.background = "";
       gameContainer.style.background = "";
-      // Show score modal only
       const scoreModal = document.getElementById("score-modal");
       const finalScoreSuccess = document.getElementById("final-score-success");
       if (scoreModal && finalScoreSuccess) {
@@ -270,7 +347,6 @@ function goodGame() {
         scoreModal.style.display = "flex";
       }
       modalOverlay.style.display = "none";
-      // Add event listener for return button
       const returnBtn = document.getElementById("return-btn");
       if (returnBtn) {
         returnBtn.onclick = function () {
@@ -278,8 +354,8 @@ function goodGame() {
           modalOverlay.style.display = "flex";
         };
       }
-    }, 5000); // 5s water burst
-  }, 5000); // after camel reaches village
+    }, 5000);
+  }, 5000);
 
   function animateWater() {
     if (!animationActive) return;
@@ -309,6 +385,8 @@ window.onload = function () {
   modalStartBtn.onclick = function () {
     startGame();
   };
+
+  updateScoreAndBar();
   // Show/hide instructions modal
   const instructionsBtn = document.getElementById("modal-instructions-btn");
   const instructionsModal = document.getElementById("instruction-overlay");
